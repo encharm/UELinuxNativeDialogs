@@ -71,22 +71,18 @@ UFileDialog* UFileDialog_Create(UFileDialogHints *hints)
   switch(hints->Action)
   {
     case UFileDialogActionOpen:
-      printf("Set action open\n");
       dialog->dialog.setAcceptMode(QFileDialog::AcceptOpen);
       dialog->dialog.setFileMode(QFileDialog::ExistingFile);
       break;
     case UFileDialogActionOpenMultiple:
-      printf("Set action open multiple\n");
       dialog->dialog.setAcceptMode(QFileDialog::AcceptOpen);
       dialog->dialog.setFileMode(QFileDialog::ExistingFiles);
       break;
     case UFileDialogActionOpenDirectory:
-      printf("Set action open dir\n");
       dialog->dialog.setAcceptMode(QFileDialog::AcceptOpen);
       dialog->dialog.setFileMode(QFileDialog::Directory);
       break;
     case UFileDialogActionSave:
-      printf("Set action save dir\n");
       dialog->dialog.setAcceptMode(QFileDialog::AcceptSave);
       dialog->dialog.setFileMode(QFileDialog::AnyFile);
       break;

@@ -10,6 +10,6 @@ mkdir build
 cd build
 cmake ..
 make
-``
+```
 
 The shared libraries can be dlopened and `UFileDialog.h` should be used to utilize them

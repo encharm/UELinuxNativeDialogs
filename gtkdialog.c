@@ -1,6 +1,9 @@
+#include "UFileDialog.h"
 #include <stdlib.h>
 #include <gtk/gtk.h>
-#include "UFileDialog.h"
+#include <string.h>
+
+char *strdup(const char *s);
 
 struct UFileDialog
 {
@@ -22,19 +25,111 @@ struct UFileDialog* UFileDialog_Create(struct UFileDialogHints *hints)
     return NULL;
   }
 
-  if(!gtk_init_check(0, NULL)) {
+  if(!gtk_init_check(0, NULL))
+  {
     return NULL;
   }
 
   UFileDialog* uedialog = calloc(1, sizeof(UFileDialog));
 
-  uedialog->dialog = gtk_file_chooser_dialog_new ("Open File",
+  int action;
+  const char* label = "_Open";
+
+  const char* title = "Select File";
+
+  switch(hints->Action)
+  {
+    case UFileDialogActionOpenMultiple:
+      title = "Select Files";
+    case UFileDialogActionOpen:
+      action = GTK_FILE_CHOOSER_ACTION_OPEN;
+      break;
+    case UFileDialogActionOpenDirectory:
+      title = "Select Directory";
+      action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+      break;
+    case UFileDialogActionSave:
+      title ="Save As";
+      action = GTK_FILE_CHOOSER_ACTION_SAVE;
+      label = "_Save";
+      break;
+    default:;
+  }
+
+  if(hints->WindowTitle)
+  {
+    title = hints->WindowTitle;
+  }
+
+  uedialog->dialog = gtk_file_chooser_dialog_new (title,
               NULL,
-              GTK_FILE_CHOOSER_ACTION_OPEN,
-              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-              GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+              action,
+              "_Cancel", GTK_RESPONSE_CANCEL,
+              label, GTK_RESPONSE_ACCEPT,
               NULL);
+
+  if(hints->NameFilter)
+  {
+    GtkFileFilter* filter = gtk_file_filter_new();
+    char buffer[4096] = {0,};
+    strncpy(buffer, hints->NameFilter, sizeof(buffer)-1);
+
+    char *filter_name = buffer;
+    char *pattern = "";
+
+    char* paren = strchr(buffer, '(');
+    if(paren && paren != buffer)
+    {
+      // do dumb parsing of pattern
+      *(paren - 1) = 0;
+      *paren = 0;
+      paren++;
+      char* right_paren = strrchr(paren, ')');
+      *right_paren = 0;
+
+      char* pattern = paren;
+      while(1)
+      {
+        char* pattern_end = strchr(pattern, ' ');
+        if(pattern_end)
+        {
+          *pattern_end = 0;
+        }
+        gtk_file_filter_add_pattern(filter, pattern);
+        if(!pattern_end)
+        {
+          break;
+        }
+        else
+        {
+          pattern = pattern_end + 1;
+        }
+      }
+    }
+
+    gtk_file_filter_set_name(filter, hints->NameFilter);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(uedialog->dialog),
+        filter);
+
+  }
+
+  if(hints->InitialDirectory)
+  {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(uedialog->dialog), hints->InitialDirectory);
+  }
  
+  switch(hints->Action)
+  {
+    case UFileDialogActionOpenMultiple:
+      gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(uedialog->dialog), TRUE);
+      break;
+    case UFileDialogActionSave:
+      gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(uedialog->dialog), TRUE);
+      break;
+    default:;
+  };
+
+
   g_signal_connect (G_OBJECT (uedialog->dialog), "response",
     G_CALLBACK (file_selected),
     uedialog);
@@ -56,16 +151,11 @@ bool UFileDialog_ProcessEvents(UFileDialog* handle)
     return false;
   }
 
-//  printf("resposne %i\n", gtk_dialog_get_response_for_widget(handle->dialog));
-
   if(handle->gtk_response) {
-    printf("Got response: %i\n", handle->gtk_response);
 
     switch(handle->gtk_response) {
       case GTK_RESPONSE_ACCEPT:
       {
-        printf("Widget selected\n");
-
         //bo gtk_file_chooser_get_filenames
         GSList *elem;
         GSList* list = gtk_file_chooser_get_filenames (GTK_FILE_CHOOSER (handle->dialog));
@@ -78,14 +168,6 @@ bool UFileDialog_ProcessEvents(UFileDialog* handle)
         }
         g_slist_foreach(list, (GFunc)g_free, NULL);
         g_slist_free(list);
-      }
-      break;
-      case GTK_RESPONSE_DELETE_EVENT:
-      case GTK_RESPONSE_CANCEL:
-      case GTK_RESPONSE_REJECT:
-      {
-        printf("Widget rejected\n");
-
       }
       break;
       default:

@@ -1,7 +1,8 @@
-#include "UFileDialog.h"
+#include "UNativeDialogs.h"
 
 #include <QApplication>
 #include <QFileDialog>
+#include <QFontDialog>
 
 
 // KDE integration fails after QApplication is destroyed
@@ -87,7 +88,19 @@ UFileDialog* UFileDialog_Create(UFileDialogHints *hints)
       dialog->dialog.setFileMode(QFileDialog::AnyFile);
       break;
   }
+
+//  dialog->dialog.close();
+  //dialog->dialog.setWindowState( (dialog->dialog.windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+  dialog->dialog.setWindowFlags(Qt::WindowStaysOnTopHint);
+
+  dialog->dialog.setWindowModality(Qt::ApplicationModal);
   dialog->dialog.show();
+  qApp->processEvents();
+  dialog->dialog.activateWindow();
+  qApp->processEvents();
+  dialog->dialog.raise();
+  qApp->processEvents();
+
   return dialog;
 }
 
@@ -125,6 +138,75 @@ void UFileDialog_Destroy(UFileDialog* handle)
 }
 
 const UFileDialogResult* UFileDialog_Result(UFileDialog* handle)
+{
+
+  return &(handle->result);
+}
+
+
+struct UFontDialog
+{
+public:
+  QFontDialog dialog;
+  UFontDialog()
+  {
+
+  }
+  virtual ~UFontDialog() {
+  }
+  UFontDialogResult result;
+};
+
+UFontDialog* UFontDialog_Create(UFontDialogHints *hints)
+{
+  /*
+    FAT NOTE. This plugin shouldn't be unloaded as things
+    could break. Doing multiple QApplication initializations
+    and destructions as long as there is only one at a time
+    alive is perfectly valid for Qt but unfortunately KDE
+    integration is not as forthcoming and a single instance
+    of QApplication needs to be left alive
+    */
+  if(!qApp)
+  { //lazy initialize QApplication
+    static int argc;
+    new QApplication(argc, NULL);
+  }
+
+  if(hints == NULL)
+  {
+    return NULL;
+  }
+
+  UFontDialog* dialog = new UFontDialog();
+  
+  return dialog;
+}
+
+bool UFontDialog_ProcessEvents(UFontDialog* handle)
+{
+  qApp->processEvents();
+
+  int result = handle->dialog.result();
+  handle->dialog.setWindowState( (handle->dialog.windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+  if(result != 0)
+  {
+    return false;
+  }
+  if(handle->dialog.isHidden()) // someone closed it
+  {
+    return false;
+  }
+  return true;
+}
+
+void UFontDialog_Destroy(UFontDialog* handle)
+{
+  if(handle)
+    delete handle;
+}
+
+const UFontDialogResult* UFontDialog_Result(UFontDialog* handle)
 {
 
   return &(handle->result);

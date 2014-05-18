@@ -8,6 +8,23 @@ find_package(GTK2 QUIET)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK3 gtk+-3.0)
+pkg_check_modules(SDL2 sdl2)
+
+find_package(OpenGL REQUIRED)
+if(SDL2_FOUND)
+	message(STATUS "SDL2 found")
+
+endif()
+
+macro(add_sdl_test name linkto)
+  if(SDL2_FOUND)
+    message("SDL2 found ${SDL2_LIBRARIES}")
+    add_executable(${name} sdl2test.cpp)
+    target_link_libraries(${name} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${linkto})
+  endif()
+endmacro()
+
+
 
 if(QT4_FOUND)
 message(STATUS "Qt4 found")
@@ -18,6 +35,8 @@ target_link_libraries(qt4dialog Qt4::QtGui)
 
 add_executable(qt4test dialogtest.cpp)
 target_link_libraries(qt4test qt4dialog)
+
+add_sdl_test(qt4sdltest qt4dialog)
 
 endif()
 
@@ -31,7 +50,7 @@ target_link_libraries(qt5dialog Qt5::Widgets)
 add_executable(qt5test dialogtest.cpp)
 target_link_libraries(qt5test qt5dialog)
 
-
+add_sdl_test(qt5sdltest qt5dialog)
 endif()
 
 if(GTK2_FOUND)
@@ -44,6 +63,7 @@ target_link_libraries(gtk2dialog ${GTK2_LIBRARIES})
 add_executable(gtk2test dialogtest.cpp)
 target_link_libraries(gtk2test gtk2dialog)
 
+add_sdl_test(gtk2sdltest gtk2dialog)
 endif()
 
 if(GTK3_FOUND)
@@ -56,5 +76,6 @@ target_link_libraries(gtk3dialog ${GTK3_LIBRARIES})
 add_executable(gtk3test dialogtest.cpp)
 target_link_libraries(gtk3test gtk3dialog)
 
-
+add_sdl_test(gtk3sdltest gtk3dialog)
 endif()
+

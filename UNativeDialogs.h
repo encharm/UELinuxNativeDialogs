@@ -1,7 +1,7 @@
 // Author: Damian Kaczmarek <damian@codecharm.co.uk>
 
-#ifndef UEFILEDIALOG_H
-#define UEFILEDIALOG_H
+#ifndef UNATIVEDIALOGS_H
+#define UNATIVEDIALOGS_H
 
 /*
 	Usage:
@@ -73,8 +73,38 @@ bool UFileDialog_ProcessEvents(UFileDialog* handle);
 const UFileDialogResult* UFileDialog_Result(UFileDialog* handle);
 void UFileDialog_Destroy(UFileDialog* handle);
 
+struct UFontDialog;
+typedef struct UFontDialog UFontDialog;
+
+typedef enum {
+	UFontDialogNormal = 0,
+	UFontDialogBold = 1,
+	UFontDialogItalic = 2,
+	UFontDialogBoldItalic = 3
+} UFontDialogFontFlags;
+
+struct UFontDialogHints
+{
+
+};
+
+#define DEFAULT_UFONTDIALOGHINTS { \
+}
+
+typedef struct UFontDialogResult
+{
+	const char* fontName;
+	UFontDialogFontFlags flags;
+} UFontDialogResult;
+
+UFontDialog* UFontDialog_Create(struct UFontDialogHints* hints);
+bool UFontDialog_ProcessEvents(UFontDialog* handle);
+// valid after Process returning false
+const UFontDialogResult* UFontDialog_Result(UFontDialog* handle);
+void UFontDialog_Destroy(UFontDialog* handle);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // UEFILEDIALOG_H
+#endif // UNATIVEDIALOGS_H

@@ -1,4 +1,5 @@
-#include "UFileDialog.h"
+#include "UNativeDialogs.h"
+
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <string.h>
@@ -193,8 +194,13 @@ void UFileDialog_Destroy(UFileDialog* handle)
   int i;
   if(GTK_IS_FILE_CHOOSER(handle->dialog))
   {
+    gtk_widget_hide(handle->dialog);
+    gtk_main_iteration_do(false);
     gtk_widget_destroy (handle->dialog);
   }
+  // in laggy environment this is necessary - WHY?
+  for(i = 0;i < 10;++i)
+    gtk_main_iteration_do(false);
 
   if(handle->result.selection) {
     for(i = 0;i < handle->result.count;++i) {
@@ -203,4 +209,32 @@ void UFileDialog_Destroy(UFileDialog* handle)
     free(handle->result.selection);
   }
   free(handle);
+}
+
+struct UFontDialog
+{
+  GtkWidget* dialog;
+  UFontDialogResult result;
+};
+
+UFontDialog* UFontDialog_Create(struct UFontDialogHints *hints)
+{
+  return NULL;
+}
+
+bool UFontDialog_ProcessEvents(UFontDialog* handle)
+{
+  return false;
+}
+
+void UFontDialog_Destroy(UFontDialog* handle)
+{
+  
+}
+
+const UFontDialogResult* UFontDialog_Result(UFontDialog* handle)
+{
+  if(!handle)
+    return NULL;
+  return &(handle->result); 
 }

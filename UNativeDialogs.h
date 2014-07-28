@@ -94,6 +94,7 @@ struct UFontDialogHints
 typedef struct UFontDialogResult
 {
 	const char* fontName;
+	float pointSize;
 	UFontDialogFontFlags flags;
 } UFontDialogResult;
 

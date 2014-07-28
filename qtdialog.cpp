@@ -150,9 +150,14 @@ public:
   QFontDialog dialog;
   UFontDialog()
   {
-
+    result.flags = UFontDialogNormal;
+    result.pointSize = 0;
+    result.fontName = NULL;
   }
   virtual ~UFontDialog() {
+    if(result.fontName) {
+      free((void*)result.fontName);
+    }
   }
   UFontDialogResult result;
 };
@@ -179,18 +184,31 @@ UFontDialog* UFontDialog_Create(UFontDialogHints *hints)
   }
 
   UFontDialog* dialog = new UFontDialog();
-  
+  dialog->dialog.show();
+
   return dialog;
 }
 
 bool UFontDialog_ProcessEvents(UFontDialog* handle)
 {
   qApp->processEvents();
-
   int result = handle->dialog.result();
   handle->dialog.setWindowState( (handle->dialog.windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
   if(result != 0)
   {
+    QFont font = handle->dialog.selectedFont();
+    handle->result.pointSize = font.pointSizeF();
+    handle->result.fontName = strdup(font.family().toStdString().c_str());
+
+    if(font.bold() && font.italic())
+      handle->result.flags = UFontDialogBoldItalic;
+    else if(font.bold())
+      handle->result.flags = UFontDialogBold;
+    else if(font.italic())
+      handle->result.flags = UFontDialogItalic;
+    else
+      handle->result.flags = UFontDialogNormal;
+
     return false;
   }
   if(handle->dialog.isHidden()) // someone closed it
@@ -202,12 +220,12 @@ bool UFontDialog_ProcessEvents(UFontDialog* handle)
 
 void UFontDialog_Destroy(UFontDialog* handle)
 {
-  if(handle)
+  if(handle) {
     delete handle;
+  }
 }
 
 const UFontDialogResult* UFontDialog_Result(UFontDialog* handle)
 {
-
   return &(handle->result);
 }

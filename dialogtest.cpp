@@ -30,6 +30,9 @@ void test_fontdialog(struct UFontDialogHints* hints)
   while(UFontDialog_ProcessEvents(dialog)) {
     usleep(5000);
   }
+  const UFontDialogResult* result =  UFontDialog_Result(dialog);
+  printf("Selected font: %s - %.1f\n", result->fontName, result->pointSize);
+  printf("Style: %s%s\n", ((int)result->flags)&UFontDialogBold ? "Bold":"", ((int)result->flags)&UFontDialogItalic ? "Italic":"");
 
   UFontDialog_Destroy(dialog);
 }

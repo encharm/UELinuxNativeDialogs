@@ -152,10 +152,10 @@ public:
   {
     result.flags = UFontDialogNormal;
     result.pointSize = 0;
-    result.fontName = NULL;
+    result.fontName = "";
   }
   virtual ~UFontDialog() {
-    if(result.fontName) {
+    if(result.fontName[0]) {
       free((void*)result.fontName);
     }
   }

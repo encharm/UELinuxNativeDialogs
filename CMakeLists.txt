@@ -18,7 +18,6 @@ endif()
 
 macro(add_sdl_test name linkto)
   if(SDL2_FOUND)
-    message("SDL2 found ${SDL2_LIBRARIES}")
     add_executable(${name} sdl2test.cpp)
 
     target_link_libraries(${name} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${linkto})

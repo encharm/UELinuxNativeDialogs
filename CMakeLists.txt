@@ -7,7 +7,7 @@ find_package(Qt5Widgets QUIET)
 find_package(GTK2 QUIET)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK3 gtk+-3.0 OPTIONAL)
+pkg_check_modules(GTK3 gtk+-3.0)
 pkg_check_modules(SDL2 sdl2)
 
 find_package(OpenGL REQUIRED)
@@ -32,7 +32,7 @@ message(STATUS "Qt4 found")
 add_library(qt4dialog SHARED qtdialog.cpp)
 
 #set_property( TARGET gtk2dialog PROPERTY INCLUDE_DIRECTORIES ${GTK2_INCLUDE_DIRS})
-message(STATUS ${QT_INCLUDES})
+#message(STATUS ${QT_INCLUDES})
 target_link_libraries(qt4dialog Qt4::QtGui)
 
 add_executable(qt4test dialogtest.cpp)

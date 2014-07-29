@@ -148,7 +148,7 @@ struct UFontDialog
 {
 public:
   QFontDialog dialog;
-  UFontDialog()
+  UFontDialog(const QFont& initial) : dialog(initial)
   {
     result.flags = UFontDialogNormal;
     result.pointSize = 0;
@@ -183,8 +183,22 @@ UFontDialog* UFontDialog_Create(UFontDialogHints *hints)
     return NULL;
   }
 
-  UFontDialog* dialog = new UFontDialog();
+  QFont initial;
+  if(hints->InitialFontName) {
+    initial.setFamily(hints->InitialFontName);
+  }
+  if(hints->InitialPointSize) {
+    initial.setPointSizeF(hints->InitialPointSize);
+  }
+  if(hints->InitialPixelSize) {
+    initial.setPointSizeF(hints->InitialPixelSize);
+  }
+  
+  UFontDialog* dialog = new UFontDialog(initial);
   dialog->dialog.show();
+  if(hints->WindowTitle) {
+    dialog->dialog.setWindowTitle(hints->WindowTitle);
+  }
 
   return dialog;
 }
@@ -198,6 +212,7 @@ bool UFontDialog_ProcessEvents(UFontDialog* handle)
   {
     QFont font = handle->dialog.selectedFont();
     handle->result.pointSize = font.pointSizeF();
+    handle->result.pixelSize = font.pixelSize();
     handle->result.fontName = strdup(font.family().toStdString().c_str());
 
     if(font.bold() && font.italic())

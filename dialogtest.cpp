@@ -42,6 +42,9 @@ int main(void)
 
   {
     struct UFontDialogHints hints = DEFAULT_UFONTDIALOGHINTS;
+    hints.InitialFontName = "Arial";
+    hints.InitialPixelSize = 20;
+    hints.WindowTitle = "Open Font";
 
     test_fontdialog(&hints);
   }
@@ -49,7 +52,7 @@ int main(void)
   {
     struct UFileDialogHints hints = DEFAULT_UFILEDIALOGHINTS;
 
-    //hints.InitialDirectory = "/home/rush";
+    hints.InitialDirectory = "/home/";
 
     hints.NameFilter = "Image files (*.jpg *.png)";
 

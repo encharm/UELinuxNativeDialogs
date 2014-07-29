@@ -85,16 +85,24 @@ typedef enum {
 
 struct UFontDialogHints
 {
-
+	float InitialPointSize;
+	int InitialPixelSize;
+	const char* InitialFontName;
+	const char* WindowTitle;
 };
 
 #define DEFAULT_UFONTDIALOGHINTS { \
+	0.0f, \
+	0 ,  \
+	NULL, \
+	NULL \
 }
 
 typedef struct UFontDialogResult
 {
 	const char* fontName;
 	float pointSize;
+	int pixelSize;
 	UFontDialogFontFlags flags;
 } UFontDialogResult;
 

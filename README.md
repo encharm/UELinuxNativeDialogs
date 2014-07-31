@@ -1,4 +1,4 @@
-UELinuxFileDialogs
+UELinuxNativeDialogs
 ==================
 
 Linux file dialog implementations dedicated for Unreal Engine. Purpose of this project is to provide a simple C API allowing to open linux file and font dialogs utilizing either of four mainstream GUI toolkits:
